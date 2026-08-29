@@ -1,11 +1,10 @@
-// ...existing code...
 const User = require('./User');
 const Thread = require('./Thread');
 const Comment = require('./Comment');
 const Reply = require('./Reply');
 const Authentication = require('./Authentication');
+const UserCommentLike = require('./UserCommentLike');
 
-// Pastikan associations didefinisikan sekali dan konsisten dengan alias yang digunakan di repository
 User.hasMany(Thread, { foreignKey: 'owner', as: 'threads' });
 Thread.belongsTo(User, { foreignKey: 'owner', as: 'user' });
 
@@ -24,10 +23,17 @@ Reply.belongsTo(Thread, { foreignKey: 'thread_id', as: 'thread' });
 Comment.hasMany(Reply, { foreignKey: 'comment_id', as: 'replies' });
 Reply.belongsTo(Comment, { foreignKey: 'comment_id', as: 'comment' });
 
+User.hasMany(UserCommentLike, { foreignKey: 'owner', as: 'likes' });
+UserCommentLike.belongsTo(User, { foreignKey: 'owner', as: 'user' });
+
+Comment.hasMany(UserCommentLike, { foreignKey: 'comment_id', as: 'likes' });
+UserCommentLike.belongsTo(Comment, { foreignKey: 'comment_id', as: 'comment' });
+
 module.exports = {
   User,
   Thread,
   Comment,
   Reply,
   Authentication,
+  UserCommentLike,
 };

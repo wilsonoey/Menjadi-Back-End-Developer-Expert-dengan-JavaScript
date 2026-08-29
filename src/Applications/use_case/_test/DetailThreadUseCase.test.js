@@ -96,6 +96,7 @@ describe('DetailThreadUseCase', () => {
             username: 'user2',
             date: '2023-01-01T01:00:00.000Z',
             content: 'Test Comment',
+            likeCount: 0,
             replies: [
               {
                 id: 'reply-1',
@@ -397,12 +398,14 @@ describe('DetailThreadUseCase', () => {
           date: '2023-01-01T01:00:00.000Z',
           username: 'user1',
           content: 'Test Comment',
+          likeCount: 0,
         },
         {
           id: 'comment-2',
           date: '2023-01-01T02:00:00.000Z',
           username: 'user2',
           content: '**komentar telah dihapus**',
+          likeCount: 0,
         },
       ]);
     });
