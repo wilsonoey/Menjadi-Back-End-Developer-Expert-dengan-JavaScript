@@ -1,19 +1,15 @@
 /* istanbul ignore file */
-// TODO 110925: Sesuaikan helper ini dengan package yang digunakan
 const { Comment } = require('../src/Infrastructures/database/models');
-const SequelizePool = require('../src/Infrastructures/database/SequelizePool');
-
-const pool = new SequelizePool();
 // UNUSED 220925: Ensure compatibility with expectations that pool.end() exists
 
 // TODO 110925: Implementasikan ORM Sequelize
 const CommentsTableTestHelper = {
   // TODO 220925: Ubah constructor function addComment
   async addComment({
-    id, 
-    content = 'Example Comment', 
+    id,
+    content = 'Example Comment',
     owner,
-    threadId = 'thread-123', 
+    threadId = 'thread-123',
     date = new Date().toISOString(),
   }) {
     const query = await Comment.create({

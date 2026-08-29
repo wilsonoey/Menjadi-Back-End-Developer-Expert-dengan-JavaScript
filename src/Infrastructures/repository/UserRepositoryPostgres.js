@@ -8,7 +8,7 @@ class UserRepositoryPostgres extends UserRepository {
     super();
     this._pool = pool;
     this._idGenerator = idGenerator;
-    
+
     // Get access to Sequelize models if using SequelizePool
     if (pool.getModels) {
       this._models = pool.getModels();
@@ -23,7 +23,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const user = await this._models.User.findOne({
       where: { username },
-      attributes: ['username'] // Only select username field
+      attributes: ['username'], // Only select username field
     });
 
     if (user) {
@@ -45,13 +45,13 @@ class UserRepositoryPostgres extends UserRepository {
       id,
       username,
       password,
-      fullname
+      fullname,
     });
 
     return new RegisteredUser({
       id: user.id,
       username: user.username,
-      fullname: user.fullname
+      fullname: user.fullname,
     });
   }
 
@@ -63,7 +63,7 @@ class UserRepositoryPostgres extends UserRepository {
 
     const user = await this._models.User.findOne({
       where: { username },
-      attributes: ['password']
+      attributes: ['password'],
     });
 
     if (!user) {
@@ -80,13 +80,13 @@ class UserRepositoryPostgres extends UserRepository {
 
     const user = await this._models.User.findOne({
       where: { username },
-      attributes: ['id']
+      attributes: ['id'],
     });
 
     if (!user) {
       throw new InvariantError('user tidak ditemukan');
     }
-    
+
     return user.id;
   }
 }

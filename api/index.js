@@ -14,7 +14,7 @@ app.use(async (req, res, next) => {
     return server.app(req, res, next);
   } catch (err) {
     console.error('Serverless Runtime Error:', err);
-    res.status(500).json({
+    return res.status(500).json({
       status: 'error',
       message: err.message || 'Internal Server Error',
       stack: err.stack,

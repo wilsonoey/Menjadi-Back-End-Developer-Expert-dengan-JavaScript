@@ -19,7 +19,7 @@ class AuthenticationsHandler {
     });
     response.code(201);
     return response;
-  }
+  };
 
   putAuthenticationHandler = async (request) => {
     const refreshAuthenticationUseCase = this._container
@@ -32,7 +32,7 @@ class AuthenticationsHandler {
         accessToken,
       },
     };
-  }
+  };
 
   deleteAuthenticationHandler = async (request) => {
     const logoutUserUseCase = this._container.getInstance(LogoutUserUseCase.name);
@@ -40,7 +40,7 @@ class AuthenticationsHandler {
     return {
       status: 'success',
     };
-  }
+  };
 }
 
 module.exports = AuthenticationsHandler;

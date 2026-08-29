@@ -42,7 +42,7 @@ describe('ReplyRepositoryPostgres', () => {
     it('should set this._models when pool has getModels method', () => {
       // Arrange
       const pool = {
-        getModels: jest.fn().mockReturnValue('models')
+        getModels: jest.fn().mockReturnValue('models'),
       };
 
       // Act
@@ -337,7 +337,7 @@ describe('ReplyRepositoryPostgres', () => {
 
       // Optional: verify via repository public read method
       const replies = await replyRepositoryPostgres.getRepliesByThreadId(threadId);
-      const target = replies.find(r => r.id === replyId);
+      const target = replies.find((r) => r.id === replyId);
       expect(target).toBeDefined();
       expect(target.dataValues.isDelete).toBe(true);
     });

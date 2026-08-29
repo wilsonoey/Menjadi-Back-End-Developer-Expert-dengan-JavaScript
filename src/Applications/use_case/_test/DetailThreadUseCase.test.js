@@ -210,7 +210,7 @@ describe('DetailThreadUseCase', () => {
       // Arrange
       const threadId = 'thread-123';
       const mockThreadObject = {
-        '0': {
+        0: {
           id: 'thread-123',
           title: 'Test Thread',
           body: 'Test Body',

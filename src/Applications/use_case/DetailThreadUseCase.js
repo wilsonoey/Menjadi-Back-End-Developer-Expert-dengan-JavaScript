@@ -1,5 +1,7 @@
 class DetailThreadUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository, likeRepository }) {
+  constructor({
+    threadRepository, commentRepository, replyRepository, likeRepository,
+  }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
@@ -49,7 +51,7 @@ class DetailThreadUseCase {
     }
 
     if (Array.isArray(threadObj) && threadObj.length > 0) {
-      threadObj = threadObj[0];
+      [threadObj] = threadObj;
     }
 
     if (threadObj && typeof threadObj === 'object' && Object.prototype.hasOwnProperty.call(threadObj, '0')) {
@@ -100,13 +102,11 @@ class DetailThreadUseCase {
     return comments.map((comment) => {
       const commentWithReplies = { ...comment };
 
-      const matchedReplies = replies.filter((reply) => {
-        return reply.comment_id === comment.id || reply.commentId === comment.id;
-      });
+      const matchedReplies = replies.filter((reply) => reply.comment_id === comment.id || reply.commentId === comment.id);
 
       commentWithReplies.replies = matchedReplies
         .map((reply) => {
-          const id = reply.id;
+          const { id } = reply;
           const is_delete = reply.is_delete ?? reply.isDelete ?? false;
           const rawDate = reply.date;
           const date = rawDate instanceof Date ? rawDate.toISOString() : (new Date(rawDate)).toISOString();

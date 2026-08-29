@@ -21,12 +21,12 @@ describe('AuthenticationRepository postgres', () => {
     it('should set this._models when pool has getModels method', () => {
       // Arrange
       const pool = {
-        getModels: jest.fn().mockReturnValue('models')
+        getModels: jest.fn().mockReturnValue('models'),
       };
-      
+
       // Act
       const authRepositoryPostgres = new AuthenticationRepositoryPostgres(pool, {});
-      
+
       // Assert
       expect(pool.getModels).toHaveBeenCalled();
       expect(authRepositoryPostgres._models).toEqual('models');
@@ -35,10 +35,10 @@ describe('AuthenticationRepository postgres', () => {
     it('should not set this._models when pool does not have getModels method', () => {
       // Arrange
       const pool = {};
-      
+
       // Act
       const authRepositoryPostgres = new AuthenticationRepositoryPostgres(pool, {});
-      
+
       // Assert
       expect(authRepositoryPostgres._models).toBeUndefined();
     });
@@ -125,7 +125,7 @@ describe('AuthenticationRepository postgres', () => {
       await expect(authenticationRepository.deleteToken(token))
         .rejects.toThrow('Sequelize models not available');
     });
-    
+
     it('should delete token from database', async () => {
       // Arrange
       const authenticationRepository = new AuthenticationRepositoryPostgres(pool);

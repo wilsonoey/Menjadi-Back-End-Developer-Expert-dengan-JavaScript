@@ -22,25 +22,25 @@ class CommentRepositoryPostgres extends CommentRepository {
     if (!this._models) {
       throw new Error('Sequelize models not available');
     }
-    
+
     const createdComment = await this._models.Comment.create({
       id,
       content,
       owner,
       thread_id: threadId, // Use correct field name for database
-      date
+      date,
     });
-    
+
     // TODO 110925: Ensure we convert Sequelize instance to plain object and return AddedComment
     const plain = createdComment.get ? createdComment.get({ plain: true }) : createdComment;
 
     // TODO 110925: Return the AddedComment entity
     // TODO 160925: Sesuaikan properti sesuai dengan entity AddedComment
     // TODO 180925: Nilai kembalian dari fungsi addComment di sini juga sudah sama dengan nilai kembalian yang diharapkan oleh fungsi addComment pada file Domains/comments/CommentRepository.js
-    return new AddedComment({ 
+    return new AddedComment({
       id: plain.id,
       content: plain.content,
-      owner: plain.owner
+      owner: plain.owner,
     });
   }
 
@@ -51,7 +51,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
 
     const comment = await this._models.Comment.findOne({
-      where: { id: commentId }
+      where: { id: commentId },
     });
 
     if (!comment) {
@@ -65,7 +65,7 @@ class CommentRepositoryPostgres extends CommentRepository {
       throw new Error('Sequelize models not available');
     }
     const comment = await this._models.Comment.findOne({
-      where: { id: commentId, owner: owner }
+      where: { id: commentId, owner },
     });
 
     if (!comment) {
@@ -80,7 +80,7 @@ class CommentRepositoryPostgres extends CommentRepository {
     }
 
     const comment = await this._models.Comment.findOne({
-      where: { id: commentId }
+      where: { id: commentId },
     });
 
     if (!comment) {

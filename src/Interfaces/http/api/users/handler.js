@@ -19,7 +19,7 @@ class UsersHandler {
     });
     response.code(201);
     return response;
-  }
+  };
 }
 
 module.exports = UsersHandler;

@@ -148,7 +148,7 @@ describe('/threads/{threadId}/comments endpoint', () => {
       // Arrange
       const server = await createServer(container);
       const { accessToken, owner } = await ServerTestHelper.generateAccessToken(server);
-      
+
       // Use the same user ID from generateAccessToken instead of hardcoded 'user-123'
       const userId = owner;
       // UNUSED 150925: Remove this line - the user already exists from generateAccessToken

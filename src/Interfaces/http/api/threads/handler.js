@@ -25,7 +25,7 @@ class ThreadsHandler {
     });
     response.code(201);
     return response;
-  }
+  };
 
   getThreadHandler = async (request, h) => {
     const { threadId } = request.params;
@@ -41,7 +41,7 @@ class ThreadsHandler {
     });
     response.code(200);
     return response;
-  }
+  };
 }
 
 module.exports = ThreadsHandler;

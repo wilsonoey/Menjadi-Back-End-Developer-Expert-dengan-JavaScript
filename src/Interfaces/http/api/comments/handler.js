@@ -17,7 +17,6 @@ class CommentsHandler {
     };
     const addCommentUseCase = this._container.getInstance(AddCommentUseCase.name);
     const addedComment = await addCommentUseCase.execute(commentPayload);
-    
 
     const response = h.response({
       status: 'success',
@@ -27,7 +26,7 @@ class CommentsHandler {
     });
     response.code(201);
     return response;
-  }
+  };
 
   deleteCommentHandler = async (request, h) => {
     const { id: owner } = request.auth.credentials;
@@ -45,7 +44,7 @@ class CommentsHandler {
     });
     response.code(200);
     return response;
-  }
+  };
 }
 
 module.exports = CommentsHandler;

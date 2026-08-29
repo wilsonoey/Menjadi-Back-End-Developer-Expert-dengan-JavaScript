@@ -18,7 +18,7 @@ class RepliesHandler {
     };
     const addReplyUseCase = this._container.getInstance(AddReplyUseCase.name);
     const addedReply = await addReplyUseCase.execute(replyPayload);
-    
+
     const response = h.response({
       status: 'success',
       data: {
@@ -27,7 +27,7 @@ class RepliesHandler {
     });
     response.code(201);
     return response;
-  }
+  };
 
   deleteReplyHandler = async (request, h) => {
     const { id: owner } = request.auth.credentials;
@@ -46,7 +46,7 @@ class RepliesHandler {
     });
     response.code(200);
     return response;
-  }
+  };
 }
 
 module.exports = RepliesHandler;

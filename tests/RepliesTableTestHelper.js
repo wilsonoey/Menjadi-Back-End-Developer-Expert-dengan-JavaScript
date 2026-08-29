@@ -1,8 +1,4 @@
-// TODO 110925: Sesuaikan helper ini dengan package yang digunakan
 const { Reply } = require('../src/Infrastructures/database/models');
-const SequelizePool = require('../src/Infrastructures/database/SequelizePool');
-
-const pool = new SequelizePool();
 // UNUSED 220925: Ensure compatibility with expectations that pool.end() exists
 // TODO 110925: Implementasikan ORM Sequelize
 const RepliesTableTestHelper = {
@@ -13,7 +9,7 @@ const RepliesTableTestHelper = {
     owner,
     commentId,
     threadId = 'thread-123',
-    date = new Date().toISOString()
+    date = new Date().toISOString(),
   }) {
     const query = await Reply.create({
       id,
@@ -21,7 +17,7 @@ const RepliesTableTestHelper = {
       owner,
       commentId,
       threadId,
-      date
+      date,
     });
 
     return query;

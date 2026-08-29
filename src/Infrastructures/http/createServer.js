@@ -1,5 +1,5 @@
 const express = require('express');
-const rateLimit = require('express-rate-limit');
+const { rateLimit } = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
@@ -43,7 +43,7 @@ const createServer = async (container) => {
     app,
     info: {
       host: process.env.HOST || 'localhost',
-      port: process.env.PORT || 5000,
+      port: Number(process.env.PORT) || 5000,
       uri: `http://${process.env.HOST || 'localhost'}:${process.env.PORT || 5000}`,
     },
     auth: {
@@ -73,9 +73,9 @@ const createServer = async (container) => {
             const token = authHeader.split(' ')[1];
             try {
               const decoded = jwt.verify(token, process.env.ACCESS_TOKEN_KEY);
-              const payload = (decoded && decoded.decoded && decoded.decoded.payload)
-                ? decoded.decoded.payload
-                : (decoded.payload || decoded);
+              const payload = (typeof decoded === 'object' && decoded !== null)
+                ? (decoded.payload || decoded)
+                : {};
 
               req.auth = {
                 credentials: {
@@ -166,7 +166,7 @@ const createServer = async (container) => {
     ext: () => {},
     start: () => new Promise((resolve) => {
       const host = process.env.HOST || 'localhost';
-      const port = process.env.PORT || 5000;
+      const port = Number(process.env.PORT) || 5000;
       server._httpServer = app.listen(port, host, () => {
         server.info.uri = `http://${host}:${port}`;
         resolve(server);

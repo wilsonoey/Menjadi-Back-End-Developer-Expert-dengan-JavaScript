@@ -37,7 +37,7 @@ const sequelize = new Sequelize(
     dialectModule: pg,
     dialectOptions,
     logging: false,
-  }
+  },
 );
 
 module.exports = sequelize;

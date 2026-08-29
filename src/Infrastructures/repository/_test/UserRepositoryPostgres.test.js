@@ -23,7 +23,7 @@ describe('UserRepositoryPostgres', () => {
     it('should set this._models when pool has getModels method', () => {
       // Arrange
       const pool = {
-        getModels: jest.fn().mockReturnValue('models')
+        getModels: jest.fn().mockReturnValue('models'),
       };
 
       // Act

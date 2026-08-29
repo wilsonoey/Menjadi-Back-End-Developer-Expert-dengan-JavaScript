@@ -20,7 +20,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     }
 
     const thread = await this._models.Thread.findOne({
-      where: { id: threadId }
+      where: { id: threadId },
     });
 
     if (!thread) {
@@ -40,7 +40,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
       id,
       title,
       body,
-      owner
+      owner,
     });
 
     // Extract plain data values from Sequelize model instance
@@ -49,7 +49,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     return new AddedThread({
       id: threadDataValues.id,
       title: threadDataValues.title,
-      owner: threadDataValues.owner
+      owner: threadDataValues.owner,
     });
   }
 
@@ -62,7 +62,7 @@ class ThreadRepositoryPostgres extends ThreadRepository {
     const thread = await this._models.Thread.findOne({
       where: { id: threadId },
       include: [
-        { model: this._models.User, as: 'user', attributes: ['username'] }
+        { model: this._models.User, as: 'user', attributes: ['username'] },
       ],
       attributes: ['id', 'title', 'body', 'date'],
     });

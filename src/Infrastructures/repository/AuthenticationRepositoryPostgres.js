@@ -5,7 +5,7 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
   constructor(pool) {
     super();
     this._pool = pool;
-    
+
     // Get access to Sequelize models if using SequelizePool
     if (pool.getModels) {
       this._models = pool.getModels();
@@ -28,13 +28,13 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
     }
 
     const auth = await this._models.Authentication.findOne({
-      where: { token }
+      where: { token },
     });
-    
+
     if (!auth) {
       throw new InvariantError('refresh token tidak ditemukan di database');
     }
-    
+
     return auth;
   }
 
@@ -45,9 +45,9 @@ class AuthenticationRepositoryPostgres extends AuthenticationRepository {
     }
 
     const deletedCount = await this._models.Authentication.destroy({
-      where: { token }
+      where: { token },
     });
-    
+
     if (deletedCount === 0) {
       throw new InvariantError('token tidak ditemukan');
     }

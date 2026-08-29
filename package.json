@@ -6,6 +6,7 @@
   "scripts": {
     "start": "node src/app.js",
     "start:dev": "nodemon src/app.js >> error.txt",
+    "lint": "eslint .",
     "test": "jest --setupFiles dotenv/config -i > test.txt 2>&1",
     "test:order": "jest --runInBand --setupFiles dotenv/config -i",
     "test:watch": "jest --watchAll --coverage --setupFiles dotenv/config -i",

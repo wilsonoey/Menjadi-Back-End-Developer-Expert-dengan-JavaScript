@@ -1,15 +1,6 @@
 /* istanbul ignore file */
 
-// TODO 110925: Sesuaikan helper ini dengan package yang digunakan
 const { User } = require('../src/Infrastructures/database/models');
-const RegisteredUser = require('../src/Domains/users/entities/RegisteredUser');
-const SequelizePool = require('../src/Infrastructures/database/SequelizePool');
-
-const pool = new SequelizePool();
-// ensure compatibility with expectations that pool.end() exists
-if (!pool.end) {
-  pool.end = pool.close ? pool.close.bind(pool) : async () => {};
-}
 
 // TODO 110925: Implementasikan ORM Sequelize
 const UsersTableTestHelper = {

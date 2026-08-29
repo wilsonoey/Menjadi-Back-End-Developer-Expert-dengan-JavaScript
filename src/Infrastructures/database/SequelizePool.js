@@ -9,50 +9,44 @@ class SequelizePool {
   // Maintain compatibility with existing pg pool interface
   async query(queryConfig) {
     const { text, values } = queryConfig;
-    
+
     // Determine query type
     const trimmedText = text.trim().toUpperCase();
     const isSelect = trimmedText.startsWith('SELECT');
-    
-    try {
-      if (isSelect) {
-        const [results] = await this._sequelize.query(text, {
-          replacements: values,
-          type: this._sequelize.QueryTypes.SELECT,
-        });
 
-        return {
-          rows: results,
-          rowCount: results.length,
-        };
-      } else {
-        // For INSERT, UPDATE, DELETE
-        const [results, metadata] = await this._sequelize.query(text, {
-          replacements: values,
-        });
+    if (isSelect) {
+      const [results] = await this._sequelize.query(text, {
+        replacements: values,
+        type: this._sequelize.QueryTypes.SELECT,
+      });
 
-        // Handle different types of non-SELECT queries
-        if (trimmedText.startsWith('INSERT')) {
-          return {
-            rows: results || [],
-            rowCount: results ? results.length : (metadata && metadata.rowCount) || 1,
-          };
-        } else if (trimmedText.startsWith('UPDATE') || trimmedText.startsWith('DELETE')) {
-          return {
-            rows: [],
-            rowCount: metadata || 0,
-          };
-        } else {
-          return {
-            rows: results || [],
-            rowCount: (results && results.length) || 0,
-          };
-        }
-      }
-    } catch (error) {
-      // Convert Sequelize errors to match pg pool error format
-      throw error;
+      return {
+        rows: results,
+        rowCount: results.length,
+      };
     }
+    // For INSERT, UPDATE, DELETE
+    const [results, metadata] = await this._sequelize.query(text, {
+      replacements: values,
+    });
+
+    // Handle different types of non-SELECT queries
+    if (trimmedText.startsWith('INSERT')) {
+      return {
+        rows: results || [],
+        rowCount: results ? results.length : (metadata && metadata.rowCount) || 1,
+      };
+    }
+    if (trimmedText.startsWith('UPDATE') || trimmedText.startsWith('DELETE')) {
+      return {
+        rows: [],
+        rowCount: metadata || 0,
+      };
+    }
+    return {
+      rows: results || [],
+      rowCount: (results && results.length) || 0,
+    };
   }
 
   // For non-SELECT queries (kept for backward compatibility)

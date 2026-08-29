@@ -8,6 +8,7 @@ const bcrypt = require('bcrypt');
 const Jwt = require('jsonwebtoken');
 // TODO 090925: Import SequelizePool
 const SequelizePool = require('./database/SequelizePool');
+
 const pool = new SequelizePool();
 
 // service (repository, helper, manager, etc)

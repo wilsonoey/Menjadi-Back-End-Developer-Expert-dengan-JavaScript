@@ -5,17 +5,17 @@ const sequelize = require('../sequelize');
 jest.mock('../sequelize', () => ({
   query: jest.fn(),
   QueryTypes: {
-    SELECT: 'SELECT'
+    SELECT: 'SELECT',
   },
   authenticate: jest.fn(),
-  close: jest.fn()
+  close: jest.fn(),
 }));
 
 jest.mock('../models', () => ({
   User: {},
   Thread: {},
   Comment: {},
-  Reply: {}
+  Reply: {},
 }));
 
 describe('SequelizePool', () => {
@@ -40,7 +40,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'SELECT * FROM users',
-        values: []
+        values: [],
       };
 
       // Action
@@ -51,12 +51,12 @@ describe('SequelizePool', () => {
         'SELECT * FROM users',
         {
           replacements: [],
-          type: 'SELECT'
-        }
+          type: 'SELECT',
+        },
       );
       expect(result).toEqual({
         rows: mockResults,
-        rowCount: 1
+        rowCount: 1,
       });
     });
 
@@ -68,7 +68,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'INSERT INTO users (name) VALUES (?)',
-        values: ['test']
+        values: ['test'],
       };
 
       // Action
@@ -77,7 +77,7 @@ describe('SequelizePool', () => {
       // Assert
       expect(result).toEqual({
         rows: mockResults,
-        rowCount: 1
+        rowCount: 1,
       });
     });
 
@@ -90,7 +90,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'INSERT INTO users (name) VALUES (?)',
-        values: ['test']
+        values: ['test'],
       };
 
       // Action
@@ -99,7 +99,7 @@ describe('SequelizePool', () => {
       // Assert
       expect(result).toEqual({
         rows: [],
-        rowCount: 1 // Ini akan menguji cabang (metadata && metadata.rowCount) || 1
+        rowCount: 1, // Ini akan menguji cabang (metadata && metadata.rowCount) || 1
       });
     });
 
@@ -110,7 +110,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'UPDATE users SET name = ? WHERE id = ?',
-        values: ['newname', 1]
+        values: ['newname', 1],
       };
 
       // Action
@@ -119,7 +119,7 @@ describe('SequelizePool', () => {
       // Assert
       expect(result).toEqual({
         rows: [],
-        rowCount: 1
+        rowCount: 1,
       });
     });
 
@@ -130,7 +130,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'DELETE FROM users WHERE id = ?',
-        values: [1]
+        values: [1],
       };
 
       // Action
@@ -139,7 +139,7 @@ describe('SequelizePool', () => {
       // Assert
       expect(result).toEqual({
         rows: [],
-        rowCount: 1
+        rowCount: 1,
       });
     });
 
@@ -150,7 +150,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'CREATE TABLE test (id INT)',
-        values: []
+        values: [],
       };
 
       // Action
@@ -159,7 +159,7 @@ describe('SequelizePool', () => {
       // Assert
       expect(result).toEqual({
         rows: [],
-        rowCount: 0
+        rowCount: 0,
       });
     });
 
@@ -170,7 +170,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'SELECT * FROM users',
-        values: []
+        values: [],
       };
 
       // Action & Assert
@@ -185,7 +185,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'CREATE TABLE test (id INT)',
-        values: []
+        values: [],
       };
 
       // Action
@@ -195,7 +195,7 @@ describe('SequelizePool', () => {
       // Ini akan menguji cabang `|| []` dan `|| 0`
       expect(result).toEqual({
         rows: [],
-        rowCount: 0
+        rowCount: 0,
       });
     });
 
@@ -207,7 +207,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'INSERT INTO users (name) VALUES (?)',
-        values: ['test']
+        values: ['test'],
       };
 
       // Action
@@ -217,7 +217,7 @@ describe('SequelizePool', () => {
       // Ini akan menguji cabang fallback `|| 1`
       expect(result).toEqual({
         rows: [],
-        rowCount: 1
+        rowCount: 1,
       });
     });
 
@@ -229,7 +229,7 @@ describe('SequelizePool', () => {
 
       const queryConfig = {
         text: 'UPDATE users SET name = ? WHERE id = ?',
-        values: ['newname', 999] // ID yang tidak ada
+        values: ['newname', 999], // ID yang tidak ada
       };
 
       // Action
@@ -239,7 +239,7 @@ describe('SequelizePool', () => {
       // Ini akan menguji cabang fallback `|| 0`
       expect(result).toEqual({
         rows: [],
-        rowCount: 0
+        rowCount: 0,
       });
     });
   });
@@ -249,9 +249,9 @@ describe('SequelizePool', () => {
       // Arrange
       const queryConfig = {
         text: 'SELECT * FROM users',
-        values: []
+        values: [],
       };
-      
+
       const mockResults = [{ id: 1 }];
       sequelize.query.mockResolvedValueOnce([mockResults]);
 

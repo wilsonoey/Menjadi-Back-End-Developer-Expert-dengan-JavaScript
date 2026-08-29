@@ -1,12 +1,12 @@
 const ServerTestHelper = {
-  async registerUser({ server, username = "Wilson" }) {
+  async registerUser({ server, username = 'Wilson' }) {
     const response = await server.inject({
-      method: "POST",
-      url: "/users",
+      method: 'POST',
+      url: '/users',
       payload: {
         username,
-        password: "secret",
-        fullname: "Wilson Jonathan Oey",
+        password: 'secret',
+        fullname: 'Wilson Jonathan Oey',
       },
     });
 
@@ -18,12 +18,12 @@ const ServerTestHelper = {
     return id;
   },
 
-  async getAccessToken({ server, username = "Wilson", password = "secret" }) {
+  async getAccessToken({ server, username = 'Wilson', password = 'secret' }) {
     const user = { username, password };
 
     const loginUser = await server.inject({
-      method: "POST",
-      url: "/authentications",
+      method: 'POST',
+      url: '/authentications',
       payload: user,
     });
 

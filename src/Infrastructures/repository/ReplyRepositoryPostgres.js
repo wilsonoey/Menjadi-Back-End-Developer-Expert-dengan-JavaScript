@@ -16,7 +16,9 @@ class ReplyRepositoryPostgres extends ReplyRepository {
 
   // TODO 100925: Implementasikan Sequelize ORM
   async addReply(replyData) {
-    const { commentId, content, owner, threadId } = replyData;
+    const {
+      commentId, content, owner, threadId,
+    } = replyData;
     const id = `reply-${this._idGenerator()}`;
     const date = new Date().toISOString();
 
@@ -30,13 +32,13 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       owner,
       commentId,
       threadId,
-      date
+      date,
     });
 
     return new AddedReply({
       id: query.id,
       content: query.content,
-      owner: query.owner
+      owner: query.owner,
     });
   }
 
@@ -47,7 +49,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
 
     const reply = await this._models.Reply.findOne({
-      where: { id: replyId, isDelete: false }
+      where: { id: replyId, isDelete: false },
     });
 
     if (!reply) {
@@ -62,7 +64,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
 
     const reply = await this._models.Reply.findOne({
-      where: { id: replyId }
+      where: { id: replyId },
     });
 
     // UNUSED 210925: Cek apakah reply ada
@@ -102,7 +104,7 @@ class ReplyRepositoryPostgres extends ReplyRepository {
     }
 
     const reply = await this._models.Reply.findOne({
-      where: { id: replyId }
+      where: { id: replyId },
     });
 
     if (!reply) {
