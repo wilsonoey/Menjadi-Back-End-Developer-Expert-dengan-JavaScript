@@ -1,20 +1,24 @@
-require('pg');
-require('pg-hstore');
 const express = require('express');
-const createServer = require('../src/Infrastructures/http/createServer');
-const container = require('../src/Infrastructures/container');
 
 const app = express();
-let serverInstance;
+let serverPromise;
 
 app.use(async (req, res, next) => {
   try {
-    if (!serverInstance) {
-      serverInstance = await createServer(container);
+    if (!serverPromise) {
+      const container = require('../src/Infrastructures/container');
+      const createServer = require('../src/Infrastructures/http/createServer');
+      serverPromise = createServer(container);
     }
-    return serverInstance.app(req, res, next);
+    const server = await serverPromise;
+    return server.app(req, res, next);
   } catch (err) {
-    return next(err);
+    console.error('Serverless Runtime Error:', err);
+    res.status(500).json({
+      status: 'error',
+      message: err.message || 'Internal Server Error',
+      stack: err.stack,
+    });
   }
 });
 
