@@ -9,6 +9,7 @@ const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
 const replies = require('../../Interfaces/http/api/replies');
 const hello = require('../../Interfaces/http/api/hello');
+const docs = require('../../Interfaces/http/api/docs');
 
 let supertestLib;
 try {
@@ -17,30 +18,24 @@ try {
   // lazy loaded if needed
 }
 
+const threadsLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 90,
+  standardHeaders: true,
+  legacyHeaders: false,
+  validate: { default: false },
+  message: {
+    status: 'fail',
+    message: 'Terlalu banyak permintaan, silakan coba lagi nanti',
+  },
+});
+
 const createServer = async (container) => {
   const app = express();
   app.use(express.json());
 
   // Limit access: 90 requests per minute on /threads and sub-paths
-  const threadsLimiter = rateLimit({
-    windowMs: 60 * 1000,
-    max: 90,
-    standardHeaders: true,
-    legacyHeaders: false,
-    message: {
-      status: 'fail',
-      message: 'Terlalu banyak permintaan, silakan coba lagi nanti',
-    },
-  });
   app.use('/threads', threadsLimiter);
-
-  // Welcome route on root /
-  app.get('/', (req, res) => {
-    res.status(200).json({
-      status: 'success',
-      message: 'Forum API is running',
-    });
-  });
 
   const authStrategies = {};
 
@@ -127,6 +122,12 @@ const createServer = async (container) => {
           try {
             const handlerResult = await route.handler(request, h);
             if (responseData !== null) {
+              if (typeof responseData === 'string' && res.getHeader('content-type') && res.getHeader('content-type').includes('text/html')) {
+                return res.status(responseCode).send(responseData);
+              }
+              if (typeof responseData === 'string') {
+                return res.status(responseCode).send(responseData);
+              }
               return res.status(responseCode).json(responseData);
             }
             if (handlerResult && typeof handlerResult === 'object' && handlerResult.statusCode) {
@@ -225,6 +226,10 @@ const createServer = async (container) => {
     },
     {
       plugin: hello,
+      options: { container },
+    },
+    {
+      plugin: docs,
       options: { container },
     },
   ]);
