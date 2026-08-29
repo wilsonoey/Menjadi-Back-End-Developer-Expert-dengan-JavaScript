@@ -1,13 +1,25 @@
-const createServer = require('../src/Infrastructures/http/createServer');
-const container = require('../src/Infrastructures/container');
+const express = require('express');
 
-let serverInstance;
+const app = express();
+let serverPromise;
 
-const handler = async (req, res) => {
-  if (!serverInstance) {
-    serverInstance = await createServer(container);
+app.use(async (req, res, next) => {
+  try {
+    if (!serverPromise) {
+      const container = require('../src/Infrastructures/container');
+      const createServer = require('../src/Infrastructures/http/createServer');
+      serverPromise = createServer(container);
+    }
+    const server = await serverPromise;
+    return server.app(req, res, next);
+  } catch (err) {
+    console.error('Serverless Runtime Error:', err);
+    res.status(500).json({
+      status: 'error',
+      message: err.message || 'Internal Server Error',
+      stack: err.stack,
+    });
   }
-  return serverInstance.app(req, res);
-};
+});
 
-module.exports = handler;
+module.exports = app;

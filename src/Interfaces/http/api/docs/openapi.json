@@ -1,0 +1,304 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Forum API - Dicoding Expert Backend",
+    "description": "Dokumentasi RESTful API untuk Forum API (Submission Menjadi Back-End Developer Expert). Mendukung Clean Architecture, Express.js, PostgreSQL (Sequelize), Rate Limiting (90 req/min), HTTPS, dan JWT Authentication.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "/",
+      "description": "Current Server (HTTPS / Localhost)"
+    }
+  ],
+  "paths": {
+    "/hello": {
+      "get": {
+        "summary": "Health check / Hello World",
+        "description": "Endpoint pengujian untuk memverifikasi server berjalan dengan baik.",
+        "responses": {
+          "200": {
+            "description": "Server berjalan dengan baik",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "success" },
+                    "message": { "type": "string", "example": "Hello World!" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/users": {
+      "post": {
+        "summary": "Mendaftarkan user baru",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password", "fullname"],
+                "properties": {
+                  "username": { "type": "string", "example": "dicoding" },
+                  "password": { "type": "string", "example": "secret" },
+                  "fullname": { "type": "string", "example": "Dicoding Indonesia" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "User berhasil didaftarkan" },
+          "400": { "description": "Bad Request (spesifikasi payload tidak sesuai)" }
+        }
+      }
+    },
+    "/authentications": {
+      "post": {
+        "summary": "Login user dan mendapatkan Access & Refresh Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["username", "password"],
+                "properties": {
+                  "username": { "type": "string", "example": "dicoding" },
+                  "password": { "type": "string", "example": "secret" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Login berhasil dan token dikembalikan" },
+          "400": { "description": "Kredensial atau payload tidak valid" }
+        }
+      },
+      "put": {
+        "summary": "Memperbarui Access Token menggunakan Refresh Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["refreshToken"],
+                "properties": {
+                  "refreshToken": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Access Token berhasil diperbarui" },
+          "400": { "description": "Refresh Token tidak valid" }
+        }
+      },
+      "delete": {
+        "summary": "Logout user dan menghapus Refresh Token",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["refreshToken"],
+                "properties": {
+                  "refreshToken": { "type": "string" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": { "description": "Logout berhasil" },
+          "400": { "description": "Refresh Token tidak valid" }
+        }
+      }
+    },
+    "/threads": {
+      "post": {
+        "summary": "Menambahkan thread baru (Rate Limited: 90 req/min)",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["title", "body"],
+                "properties": {
+                  "title": { "type": "string", "example": "Sebuah thread" },
+                  "body": { "type": "string", "example": "Isi dari thread" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Thread berhasil ditambahkan" },
+          "401": { "description": "Unauthorized (Missing / Invalid Token)" }
+        }
+      }
+    },
+    "/threads/{threadId}": {
+      "get": {
+        "summary": "Melihat detail thread beserta komentar dan balasannya",
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Detail thread berhasil didapatkan" },
+          "404": { "description": "Thread tidak ditemukan" }
+        }
+      }
+    },
+    "/threads/{threadId}/comments": {
+      "post": {
+        "summary": "Menambahkan komentar pada thread",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": { "type": "string", "example": "Sebuah komentar" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Komentar berhasil ditambahkan" },
+          "404": { "description": "Thread tidak ditemukan" }
+        }
+      }
+    },
+    "/threads/{threadId}/comments/{commentId}": {
+      "delete": {
+        "summary": "Menghapus komentar (soft delete)",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Komentar berhasil dihapus" },
+          "403": { "description": "Forbidden (Bukan pemilik komentar)" }
+        }
+      }
+    },
+    "/threads/{threadId}/comments/{commentId}/replies": {
+      "post": {
+        "summary": "Menambahkan balasan komentar pada thread",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["content"],
+                "properties": {
+                  "content": { "type": "string", "example": "Sebuah balasan" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": { "description": "Balasan berhasil ditambahkan" },
+          "404": { "description": "Thread atau komentar tidak ditemukan" }
+        }
+      }
+    },
+    "/threads/{threadId}/comments/{commentId}/replies/{replyId}": {
+      "delete": {
+        "summary": "Menghapus balasan komentar (soft delete)",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "replyId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": { "description": "Balasan berhasil dihapus" },
+          "403": { "description": "Forbidden (Bukan pemilik balasan)" }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

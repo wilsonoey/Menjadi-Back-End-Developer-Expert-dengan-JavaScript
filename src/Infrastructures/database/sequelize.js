@@ -1,3 +1,5 @@
+const pg = require('pg');
+require('pg-hstore');
 const { Sequelize } = require('sequelize');
 
 const isTest = process.env.NODE_ENV === 'test';
@@ -32,8 +34,9 @@ const sequelize = new Sequelize(
     host: config.host || 'localhost',
     port: config.port || 5432,
     dialect: 'postgres',
-    logging: false,
+    dialectModule: pg,
     dialectOptions,
+    logging: false,
   }
 );
 
