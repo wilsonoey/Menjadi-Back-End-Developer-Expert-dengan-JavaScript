@@ -1,23 +1,34 @@
 class DetailThreadUseCase {
-  constructor({ threadRepository, commentRepository, replyRepository }) {
+  constructor({ threadRepository, commentRepository, replyRepository, likeRepository }) {
     this._threadRepository = threadRepository;
     this._commentRepository = commentRepository;
     this._replyRepository = replyRepository;
+    this._likeRepository = likeRepository;
   }
 
-  // TODO 110925: Refactor to use ORM and handle various return types
   async execute(threadId) {
     const rawThread = await this._threadRepository.getThreadById(threadId);
-    // TODO 120925: Fetch comments and format them
     const rawComments = await this._commentRepository.getCommentsByThreadId(threadId);
-    const comments = rawComments.map(comment => ({
+    const commentIds = rawComments.map((c) => c.id);
+
+    let likeCounts = {};
+    if (this._likeRepository && typeof this._likeRepository.getLikeCountsByCommentIds === 'function') {
+      likeCounts = await this._likeRepository.getLikeCountsByCommentIds(commentIds);
+    } else if (this._likeRepository && typeof this._likeRepository.getLikeCountByCommentId === 'function') {
+      for (const id of commentIds) {
+        likeCounts[id] = await this._likeRepository.getLikeCountByCommentId(id);
+      }
+    }
+
+    const comments = rawComments.map((comment) => ({
       id: comment.id,
       content: comment.content,
       date: new Date(comment.date).toISOString(),
       is_delete: comment.is_delete,
-      username: comment.user.username,
+      username: comment.user ? comment.user.username : (comment.username || ''),
+      likeCount: (likeCounts && likeCounts[comment.id]) || 0,
     }));
-    // TODO 120925: Fetch replies and format them
+
     const rawReplies = await this._replyRepository.getRepliesByThreadId(threadId);
     const replies = rawReplies.map((reply) => ({
       ...reply,
@@ -25,32 +36,26 @@ class DetailThreadUseCase {
     }));
     const formattedComments = this._formatComments(comments);
     const formattedReplies = this._formatReplies(replies);
-    // eslint-disable-next-line max-len
     const commentsWithReplies = this._insertRepliesIntoComments(formattedComments, formattedReplies);
 
-    // Normalize rawThread to a plain object to avoid response like { "0": { ... }, comments: [...] }
     let threadObj = rawThread;
 
-    // If it's a Sequelize instance, convert to plain object
     if (threadObj && typeof threadObj.get === 'function') {
       try {
         threadObj = threadObj.get({ plain: true });
       } catch (e) {
-        // fallthrough - if conversion fails, continue with other checks
+        // fallthrough
       }
     }
 
-    // If repository returned an array, take first element
     if (Array.isArray(threadObj) && threadObj.length > 0) {
       threadObj = threadObj[0];
     }
 
-    // If repository returned an object with numeric key '0' (from spreading a result), use it
     if (threadObj && typeof threadObj === 'object' && Object.prototype.hasOwnProperty.call(threadObj, '0')) {
       threadObj = threadObj['0'];
     }
 
-    // Ensure threadObj exists (repository should throw otherwise)
     const username = threadObj && (threadObj.username || (threadObj.user && threadObj.user.username));
 
     const resultThread = {
@@ -68,41 +73,37 @@ class DetailThreadUseCase {
   _formatComments(comments) {
     return comments.map((comment) => ({
       id: comment.id,
-      date: comment.date,
       username: comment.username,
+      date: comment.date,
       content: comment.is_delete ? '**komentar telah dihapus**' : comment.content,
+      likeCount: typeof comment.likeCount === 'number' ? comment.likeCount : 0,
     }));
   }
 
   _formatReplies(replies) {
     return replies.map((reply) => {
-      // TODO 130925: Handle Sequelize instance - get plain data
       const replyData = reply.dataValues || reply;
       const userData = replyData.user?.dataValues || replyData.user || {};
+      const isDelete = replyData.is_delete !== undefined ? replyData.is_delete : replyData.isDelete;
       return {
         id: replyData.id,
-        content: replyData.isDelete ? '**balasan telah dihapus**' : replyData.content,
+        content: isDelete ? '**balasan telah dihapus**' : replyData.content,
         date: replyData.date instanceof Date ? replyData.date.toISOString() : (new Date(replyData.date)).toISOString(),
-        username: userData.username,
-        comment_id: replyData.commentId,
-        is_delete: replyData.isDelete,
+        username: userData.username || replyData.username,
+        comment_id: replyData.comment_id || replyData.commentId,
+        is_delete: isDelete,
       };
     });
   }
 
   _insertRepliesIntoComments(comments, replies) {
-    // TODO 130925: Karena menerapkan clean architecture, harus ubah struktur data
-    // sehingga komentar memiliki array replies yang berisi balasan terkait
     return comments.map((comment) => {
       const commentWithReplies = { ...comment };
 
-      // pilih replies yang cocok baik dengan key snake_case atau camelCase
       const matchedReplies = replies.filter((reply) => {
         return reply.comment_id === comment.id || reply.commentId === comment.id;
       });
 
-      // normalisasi setiap reply: ubah date ke ISO, tentukan content jika dihapus,
-      // ambil username dari berbagai struktur yang mungkin, dan hapus field penghubung
       commentWithReplies.replies = matchedReplies
         .map((reply) => {
           const id = reply.id;
@@ -120,7 +121,6 @@ class DetailThreadUseCase {
             is_delete,
           };
         })
-        // opsional: urutkan berdasarkan tanggal naik (sesuaikan kebutuhan)
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
       return commentWithReplies;

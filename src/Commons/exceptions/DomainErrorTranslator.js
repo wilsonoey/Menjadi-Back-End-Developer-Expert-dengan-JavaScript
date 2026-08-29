@@ -27,14 +27,14 @@ DomainErrorTranslator._directories = {
   'DELETE_COMMENT.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat menghapus komentar karena tipe data tidak sesuai'),
   'DELETE_REPLY.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat menghapus balasan karena properti yang dibutuhkan tidak lengkap'),
   'DELETE_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat menghapus balasan karena tipe data tidak sesuai'),
-  // TODO 090925: Ubah function yang digunakan dari InvariantError ke NotFoundError untuk suffix .NOT_FOUND beserta responsenya
   'REPLY.NOT_FOUND': new NotFoundError('reply tidak ditemukan di database'),
   'COMMENT.NOT_FOUND': new NotFoundError('comment tidak ditemukan di database'),
   'THREAD.NOT_FOUND': new NotFoundError('thread tidak ditemukan di database'),
   'ADD_REPLY.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat menambahkan reply comment, request payload tidak lengkap'),
   'ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('ADD_REPLY.NOT_MEET_DATA_TYPE_SPECIFICATION'),
-  // TODO 090925: Ubah function yang digunakan dari InvariantError ke AuthorizationError untuk suffix .NOT_AUTHORIZED beserta responsenya
   'REPLY.NOT_AUTHORIZED': new AuthorizationError('Anda tidak berhak mengakses resource ini'),
+  'TOGGLE_LIKE_COMMENT_USE_CASE.NOT_CONTAIN_NEEDED_PROPERTY': new InvariantError('tidak dapat memproses like karena properti yang dibutuhkan tidak lengkap'),
+  'TOGGLE_LIKE_COMMENT_USE_CASE.PAYLOAD_NOT_MEET_DATA_TYPE_SPECIFICATION': new InvariantError('tidak dapat memproses like karena tipe data tidak sesuai'),
 };
 
 module.exports = DomainErrorTranslator;

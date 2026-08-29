@@ -12,28 +12,6 @@
     }
   ],
   "paths": {
-    "/hello": {
-      "get": {
-        "summary": "Health check / Hello World",
-        "description": "Endpoint pengujian untuk memverifikasi server berjalan dengan baik.",
-        "responses": {
-          "200": {
-            "description": "Server berjalan dengan baik",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "type": "object",
-                  "properties": {
-                    "status": { "type": "string", "example": "success" },
-                    "message": { "type": "string", "example": "Hello World!" }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/users": {
       "post": {
         "summary": "Mendaftarkan user baru",
@@ -288,6 +266,43 @@
         "responses": {
           "200": { "description": "Balasan berhasil dihapus" },
           "403": { "description": "Forbidden (Bukan pemilik balasan)" }
+        }
+      }
+    },
+    "/threads/{threadId}/comments/{commentId}/likes": {
+      "put": {
+        "summary": "Menyukai atau batal menyukai (toggle like) komentar thread",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "threadId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "commentId",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Berhasil menyukai atau batal menyukai komentar",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "status": { "type": "string", "example": "success" }
+                  }
+                }
+              }
+            }
+          },
+          "401": { "description": "Unauthorized (Token tidak valid / tidak ada)" },
+          "404": { "description": "Thread atau komentar tidak ditemukan" }
         }
       }
     }

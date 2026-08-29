@@ -8,7 +8,7 @@ const authentications = require('../../Interfaces/http/api/authentications');
 const threads = require('../../Interfaces/http/api/threads');
 const comments = require('../../Interfaces/http/api/comments');
 const replies = require('../../Interfaces/http/api/replies');
-const hello = require('../../Interfaces/http/api/hello');
+const likes = require('../../Interfaces/http/api/likes');
 const docs = require('../../Interfaces/http/api/docs');
 
 let supertestLib;
@@ -229,7 +229,7 @@ const createServer = async (container) => {
       options: { container },
     },
     {
-      plugin: hello,
+      plugin: likes,
       options: { container },
     },
     {
