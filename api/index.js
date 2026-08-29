@@ -1,3 +1,5 @@
+require('pg');
+require('pg-hstore');
 const express = require('express');
 const createServer = require('../src/Infrastructures/http/createServer');
 const container = require('../src/Infrastructures/container');
