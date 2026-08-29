@@ -9,8 +9,8 @@
     "test": "jest --setupFiles dotenv/config -i > test.txt 2>&1",
     "test:order": "jest --runInBand --setupFiles dotenv/config -i",
     "test:watch": "jest --watchAll --coverage --setupFiles dotenv/config -i",
-    "migrate": "node-pg-migrate",
-    "migrate:test": "node-pg-migrate -f config/database/test.json"
+    "migrate": "node-pg-migrate up",
+    "migrate:test": "node-pg-migrate up -f config/database/test.json"
   },
   "keywords": [],
   "author": "",
