@@ -1,11 +1,19 @@
+const express = require('express');
 const createServer = require('../src/Infrastructures/http/createServer');
 const container = require('../src/Infrastructures/container');
 
+const app = express();
 let serverInstance;
 
-module.exports = async (req, res) => {
-  if (!serverInstance) {
-    serverInstance = await createServer(container);
+app.use(async (req, res, next) => {
+  try {
+    if (!serverInstance) {
+      serverInstance = await createServer(container);
+    }
+    return serverInstance.app(req, res, next);
+  } catch (err) {
+    return next(err);
   }
-  serverInstance.app(req, res);
-};
+});
+
+module.exports = app;
