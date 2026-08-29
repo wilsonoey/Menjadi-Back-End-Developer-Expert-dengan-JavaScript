@@ -1,3 +1,4 @@
+const pg = require('pg');
 const { Sequelize } = require('sequelize');
 
 const isTest = process.env.NODE_ENV === 'test';
@@ -32,6 +33,7 @@ const sequelize = new Sequelize(
     host: config.host || 'localhost',
     port: config.port || 5432,
     dialect: 'postgres',
+    dialectModule: pg,
     logging: false,
     dialectOptions,
   }
