@@ -1,5 +1,5 @@
 const express = require('express');
-const supertest = require('supertest');
+const rateLimit = require('express-rate-limit');
 const jwt = require('jsonwebtoken');
 const ClientError = require('../../Commons/exceptions/ClientError');
 const DomainErrorTranslator = require('../../Commons/exceptions/DomainErrorTranslator');
@@ -10,9 +10,37 @@ const comments = require('../../Interfaces/http/api/comments');
 const replies = require('../../Interfaces/http/api/replies');
 const hello = require('../../Interfaces/http/api/hello');
 
+let supertestLib;
+try {
+  supertestLib = require('supertest');
+} catch (e) {
+  // lazy loaded if needed
+}
+
 const createServer = async (container) => {
   const app = express();
   app.use(express.json());
+
+  // Limit access: 90 requests per minute on /threads and sub-paths
+  const threadsLimiter = rateLimit({
+    windowMs: 60 * 1000,
+    max: 90,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+      status: 'fail',
+      message: 'Terlalu banyak permintaan, silakan coba lagi nanti',
+    },
+  });
+  app.use('/threads', threadsLimiter);
+
+  // Welcome route on root /
+  app.get('/', (req, res) => {
+    res.status(200).json({
+      status: 'success',
+      message: 'Forum API is running',
+    });
+  });
 
   const authStrategies = {};
 
@@ -152,7 +180,8 @@ const createServer = async (container) => {
       payload,
       headers = {},
     }) => {
-      const supertestReq = supertest(app)[method.toLowerCase()](url);
+      const st = supertestLib || require('supertest');
+      const supertestReq = st(app)[method.toLowerCase()](url);
 
       Object.entries(headers).forEach(([key, value]) => {
         supertestReq.set(key, value);

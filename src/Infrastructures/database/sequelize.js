@@ -1,6 +1,8 @@
 const { Sequelize } = require('sequelize');
 
-const config = process.env.NODE_ENV === 'test' ? {
+const isTest = process.env.NODE_ENV === 'test';
+
+const config = isTest ? {
   database: process.env.PGDATABASE_TEST || process.env.PGDATABASE,
   username: process.env.PGUSER_TEST || process.env.PGUSER,
   password: process.env.PGPASSWORD_TEST || process.env.PGPASSWORD,
@@ -14,15 +16,24 @@ const config = process.env.NODE_ENV === 'test' ? {
   port: process.env.PGPORT,
 };
 
+const dialectOptions = {};
+if (config.host && config.host !== 'localhost' && config.host !== '127.0.0.1') {
+  dialectOptions.ssl = {
+    require: true,
+    rejectUnauthorized: false,
+  };
+}
+
 const sequelize = new Sequelize(
-  config.database,
-  config.username,
-  config.password,
+  config.database || 'postgres',
+  config.username || 'postgres',
+  config.password || '',
   {
-    host: config.host,
-    port: config.port,
+    host: config.host || 'localhost',
+    port: config.port || 5432,
     dialect: 'postgres',
     logging: false,
+    dialectOptions,
   }
 );
 
