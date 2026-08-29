@@ -63,6 +63,8 @@ const createServer = async (container) => {
             const authHeader = req.headers.authorization;
             if (!authHeader || !authHeader.startsWith('Bearer ')) {
               return res.status(401).json({
+                statusCode: 401,
+                error: 'Unauthorized',
                 status: 'fail',
                 message: 'Missing authentication',
               });
@@ -83,6 +85,8 @@ const createServer = async (container) => {
               };
             } catch (err) {
               return res.status(401).json({
+                statusCode: 401,
+                error: 'Unauthorized',
                 status: 'fail',
                 message: 'Invalid token',
               });
