@@ -1,3 +1,11 @@
-const app = require('../index');
+const createServer = require('../src/Infrastructures/http/createServer');
+const container = require('../src/Infrastructures/container');
 
-module.exports = app;
+let serverInstance;
+
+module.exports = async (req, res) => {
+  if (!serverInstance) {
+    serverInstance = await createServer(container);
+  }
+  serverInstance.app(req, res);
+};
