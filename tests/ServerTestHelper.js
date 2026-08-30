@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 const ServerTestHelper = {
   async registerUser({ server, username = 'Wilson' }) {
     const response = await server.inject({

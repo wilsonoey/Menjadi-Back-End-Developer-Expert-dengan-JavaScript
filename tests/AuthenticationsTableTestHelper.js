@@ -1,3 +1,5 @@
+/* istanbul ignore file */
+
 const { Authentication } = require('../src/Infrastructures/database/models');
 // UNUSED 220925: Ensure compatibility with expectations that pool.end() exists
 // TODO 110925: Implementasikan ORM Sequelize
