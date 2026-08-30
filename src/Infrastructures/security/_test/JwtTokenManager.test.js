@@ -55,15 +55,21 @@ describe('JwtTokenManager', () => {
         .toThrow(InvariantError);
     });
 
-    it('should not throw InvariantError when refresh token verified', async () => {
+    it('should not throw InvariantError when refresh token verified with token object', async () => {
       // Arrange
-      const jwtTokenManager = new JwtTokenManager(Jwt);
-      const refreshToken = await jwtTokenManager.createRefreshToken({ username: 'dicoding' });
+      const mockJwtToken = {
+        generate: jest.fn(),
+        decode: jest.fn().mockReturnValue({ decoded: { payload: { username: 'dicoding' } } }),
+        verify: jest.fn(),
+      };
+      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
 
       // Action & Assert
-      await expect(jwtTokenManager.verifyRefreshToken(refreshToken))
+      await expect(jwtTokenManager.verifyRefreshToken('mock_refresh_token'))
         .resolves
         .not.toThrow(InvariantError);
+      expect(mockJwtToken.decode).toHaveBeenCalledWith('mock_refresh_token');
+      expect(mockJwtToken.verify).toHaveBeenCalled();
     });
   });
 
@@ -78,6 +84,15 @@ describe('JwtTokenManager', () => {
 
       // Action & Assert
       expect(expectedUsername).toEqual('dicoding');
+    });
+
+    it('should decode payload correctly when artifacts contain decoded.payload', async () => {
+      const mockJwtToken = {
+        decode: jest.fn().mockReturnValue({ decoded: { payload: { username: 'dicoding' } } }),
+      };
+      const jwtTokenManager = new JwtTokenManager(mockJwtToken);
+      const payload = await jwtTokenManager.decodePayload('mock_token');
+      expect(payload).toEqual({ username: 'dicoding' });
     });
   });
 });

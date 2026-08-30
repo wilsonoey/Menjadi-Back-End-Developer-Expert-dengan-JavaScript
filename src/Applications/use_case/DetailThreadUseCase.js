@@ -121,7 +121,7 @@ class DetailThreadUseCase {
             is_delete,
           };
         })
-        .sort((a, b) => new Date(a.date) - new Date(b.date));
+        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
 
       return commentWithReplies;
     });

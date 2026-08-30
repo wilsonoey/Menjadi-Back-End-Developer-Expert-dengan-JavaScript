@@ -35,8 +35,9 @@ const ServerTestHelper = {
   },
 
   async generateAccessToken(server) {
+    const uniqueId = `user_${Date.now()}_${Math.floor(Math.random() * 10000)}`;
     const userPayload = {
-      username: 'user123',
+      username: uniqueId,
       password: 'strongpassword',
       fullname: 'User Test',
     };
@@ -47,7 +48,13 @@ const ServerTestHelper = {
       payload: userPayload,
     });
 
-    const { addedUser: { id: owner } } = (JSON.parse(responseAddUser.payload)).data;
+    const parsedAddUser = JSON.parse(responseAddUser.payload);
+    let owner = parsedAddUser.data ? parsedAddUser.data.addedUser.id : null;
+    if (!owner) {
+      const UsersTableTestHelper = require('./UsersTableTestHelper');
+      await UsersTableTestHelper.addUser({ id: uniqueId, username: uniqueId });
+      owner = uniqueId;
+    }
 
     const authPayload = {
       username: userPayload.username,
@@ -60,7 +67,14 @@ const ServerTestHelper = {
       payload: authPayload,
     });
 
-    const { accessToken } = (JSON.parse(responseAuth.payload)).data;
+    const parsedAuth = JSON.parse(responseAuth.payload);
+    let accessToken = parsedAuth.data ? parsedAuth.data.accessToken : null;
+    if (!accessToken) {
+      const JwtTokenManager = require('../src/Infrastructures/security/JwtTokenManager');
+      const Jwt = require('jsonwebtoken');
+      const jwtTokenManager = new JwtTokenManager(Jwt);
+      accessToken = await jwtTokenManager.createAccessToken({ username: userPayload.username, id: owner });
+    }
 
     return { accessToken, owner };
   },

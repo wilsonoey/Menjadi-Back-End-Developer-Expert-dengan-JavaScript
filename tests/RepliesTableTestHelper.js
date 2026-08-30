@@ -4,10 +4,10 @@ const { Reply } = require('../src/Infrastructures/database/models');
 const RepliesTableTestHelper = {
   // TODO 220925: Ubah constructor function addReply
   async addReply({
-    id,
+    id = 'reply-123',
     content = 'Example Reply',
-    owner,
-    commentId,
+    owner = 'user-123',
+    commentId = 'comment-123',
     threadId = 'thread-123',
     date = new Date().toISOString(),
   }) {
@@ -36,9 +36,7 @@ const RepliesTableTestHelper = {
   async cleanTable() {
     await Reply.destroy({
       where: {},
-      truncate: true,
-      // TODO 110925: Gunakan opsi 'cascade' jika diperlukan berdasarkan relasi tabel
-      cascade: true,
+      truncate: false,
     });
   },
 };

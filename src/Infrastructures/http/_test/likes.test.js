@@ -9,6 +9,13 @@ const createServer = require('../createServer');
 describe('/threads/{threadId}/comments/{commentId}/likes endpoint', () => {
   jest.setTimeout(30000);
 
+  beforeEach(async () => {
+    await LikesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await LikesTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();

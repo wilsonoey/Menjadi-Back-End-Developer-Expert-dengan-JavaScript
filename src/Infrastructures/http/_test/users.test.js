@@ -7,6 +7,10 @@ const SequelizePool = require('../../database/SequelizePool');
 const pool = new SequelizePool();
 
 describe('/users endpoint', () => {
+  beforeAll(async () => {
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterAll(async () => {
     // TODO 110925: Implementasikan penutupan koneksi Sequelize jika diperlukan
     await pool.close();

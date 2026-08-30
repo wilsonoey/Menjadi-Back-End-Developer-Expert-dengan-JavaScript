@@ -29,11 +29,17 @@ const UsersTableTestHelper = {
   },
 
   async cleanTable() {
+    const {
+      Reply, UserCommentLike, Comment, Thread, Authentication,
+    } = require('../src/Infrastructures/database/models');
+    if (Reply) await Reply.destroy({ where: {}, truncate: false });
+    if (UserCommentLike) await UserCommentLike.destroy({ where: {}, truncate: false });
+    if (Comment) await Comment.destroy({ where: {}, truncate: false });
+    if (Thread) await Thread.destroy({ where: {}, truncate: false });
+    if (Authentication) await Authentication.destroy({ where: {}, truncate: false });
     await User.destroy({
       where: {},
       truncate: false,
-      // TODO 110925: Gunakan opsi 'cascade' jika diperlukan berdasarkan relasi tabel
-      cascade: true,
     });
   },
 };

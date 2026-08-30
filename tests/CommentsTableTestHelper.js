@@ -6,9 +6,9 @@ const { Comment } = require('../src/Infrastructures/database/models');
 const CommentsTableTestHelper = {
   // TODO 220925: Ubah constructor function addComment
   async addComment({
-    id,
+    id = 'comment-123',
     content = 'Example Comment',
-    owner,
+    owner = 'user-123',
     threadId = 'thread-123',
     date = new Date().toISOString(),
   }) {
@@ -16,14 +16,17 @@ const CommentsTableTestHelper = {
       id,
       content,
       owner,
-      thread_id: threadId, // TODO 120925: Use correct field name for database
+      threadId,
+      thread_id: threadId,
       date,
     });
 
-    // TODO 210925: Ensure the return is always a plain object
     return query;
   },
 
+  /**
+   * @returns {Promise<any[]>}
+   */
   async findCommentById(commentId) {
     // TODO 110925: Return array so tests using .toHaveLength(1) work
     const query = await Comment.findAll({
@@ -46,9 +49,7 @@ const CommentsTableTestHelper = {
   async cleanTable() {
     await Comment.destroy({
       where: {},
-      truncate: true,
-      // TODO 110925: Gunakan opsi 'cascade' jika diperlukan berdasarkan relasi tabel
-      cascade: true,
+      truncate: false,
     });
   },
 };

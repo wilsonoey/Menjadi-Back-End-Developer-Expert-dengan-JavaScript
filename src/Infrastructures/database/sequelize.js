@@ -18,7 +18,9 @@ const config = isTest ? {
   port: process.env.PGPORT,
 };
 
-const dialectOptions = {};
+const dialectOptions = {
+  keepAlive: true,
+};
 if (config.host && config.host !== 'localhost' && config.host !== '127.0.0.1') {
   dialectOptions.ssl = {
     require: true,
@@ -32,11 +34,32 @@ const sequelize = new Sequelize(
   config.password || '',
   {
     host: config.host || 'localhost',
-    port: config.port || 5432,
+    port: Number(config.port) || 5432,
     dialect: 'postgres',
     dialectModule: pg,
     dialectOptions,
     logging: false,
+    pool: {
+      max: 10,
+      min: 0,
+      idle: 2500,
+      acquire: 30000,
+      evict: 1000,
+    },
+    retry: {
+      match: [
+        /SequelizeConnectionError/,
+        /SequelizeConnectionRefusedError/,
+        /SequelizeHostNotFoundError/,
+        /SequelizeHostNotReachableError/,
+        /SequelizeInvalidConnectionError/,
+        /SequelizeConnectionTimedOutError/,
+        /TimeoutError/,
+        /ECONNRESET/,
+        /EPIPE/,
+      ],
+      max: 5,
+    },
   },
 );
 

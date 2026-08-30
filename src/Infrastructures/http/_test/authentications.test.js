@@ -9,14 +9,19 @@ const SequelizePool = require('../../database/SequelizePool');
 const pool = new SequelizePool();
 
 describe('/authentications endpoint', () => {
+  beforeAll(async () => {
+    await AuthenticationsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterAll(async () => {
     // TODO 110925: Implementasikan penutupan koneksi Sequelize jika diperlukan
     await pool.close();
   });
 
   afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
     await AuthenticationsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   describe('when POST /authentications', () => {

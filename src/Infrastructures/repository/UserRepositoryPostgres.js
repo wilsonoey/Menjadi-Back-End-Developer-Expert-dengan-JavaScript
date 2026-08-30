@@ -81,6 +81,7 @@ class UserRepositoryPostgres extends UserRepository {
     const user = await this._models.User.findOne({
       where: { username },
       attributes: ['id'],
+      raw: true,
     });
 
     if (!user) {

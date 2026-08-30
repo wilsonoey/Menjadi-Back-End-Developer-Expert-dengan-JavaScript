@@ -1,28 +1,35 @@
-const AuthenticationsTableTestHelper = require('../../../../tests/AuthenticationsTableTestHelper');
+const Jwt = require('jsonwebtoken');
 const CommentTableTestHelper = require('../../../../tests/CommentsTableTestHelper');
 const RepliesTableTestHelper = require('../../../../tests/RepliesTableTestHelper');
-const ServerTestHelper = require('../../../../tests/ServerTestHelper');
 const ThreadTableTestHelper = require('../../../../tests/ThreadsTableTestHelper');
 const UsersTableTestHelper = require('../../../../tests/UsersTableTestHelper');
 const container = require('../../container');
 const createServer = require('../createServer');
-// TODO 110925: Sesuaikan helper ini dengan package yang digunakan
+const JwtTokenManager = require('../../security/JwtTokenManager');
 const SequelizePool = require('../../database/SequelizePool');
 
 const pool = new SequelizePool();
+const jwtTokenManager = new JwtTokenManager(Jwt);
+
+jest.setTimeout(60000);
 
 describe('/threads/{threadId}/comments/{commentId}/replies', () => {
-  afterEach(async () => {
-    await UsersTableTestHelper.cleanTable();
-    await ThreadTableTestHelper.cleanTable();
-    await CommentTableTestHelper.cleanTable();
-    await AuthenticationsTableTestHelper.cleanTable();
-    await RepliesTableTestHelper.cleanTable();
+  const cleanAllTables = async () => {
+    await pool.getSequelize().query('DELETE FROM comment_replies; DELETE FROM user_comment_likes; DELETE FROM comments; DELETE FROM threads; DELETE FROM authentications; DELETE FROM users;');
+  };
+
+  beforeAll(async () => {
+    await pool.getSequelize().authenticate();
+    await cleanAllTables();
   });
 
   afterAll(async () => {
-    // TODO 110925: Implementasikan penutupan koneksi Sequelize jika diperlukan
+    await cleanAllTables();
     await pool.close();
+  });
+
+  afterEach(async () => {
+    await cleanAllTables();
   });
 
   describe('when POST /threads/{threadId}/comments/{commentId}/replies', () => {
@@ -50,18 +57,19 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
         content: 'content reply comment',
       };
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({ server });
+      const userId = 'user-test-2';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_2' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_2', id: userId });
 
       await ThreadTableTestHelper.addThread({
-        id: 'thread-123',
+        id: 'thread-test-2',
         owner: userId,
       });
 
       // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads/thread-123/comments/xxx/replies',
+        url: '/threads/thread-test-2/comments/xxx/replies',
         payload: requestPayload,
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -72,31 +80,31 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
-      // TODO 120925: Perbaiki pesan error agar sesuai dengan implementasi
       expect(responseJson.message).toEqual('comment tidak ditemukan di database');
     });
 
     it('should response 400 when request payload not contain needed property', async () => {
       // Arrange
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({ server });
+      const userId = 'user-test-3';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_3' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_3', id: userId });
 
       await ThreadTableTestHelper.addThread({
-        id: 'thread-123',
+        id: 'thread-test-3',
         owner: userId,
       });
 
       await CommentTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
+        id: 'comment-test-3',
+        threadId: 'thread-test-3',
         owner: userId,
       });
 
-      //   Action
+      // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads/thread-123/comments/comment-123/replies',
+        url: '/threads/thread-test-3/comments/comment-test-3/replies',
         payload: {},
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -107,7 +115,6 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual('fail');
-      // TODO 130925: Ubah pesan error di file testing agar sesuai dengan implementasi
       expect(responseJson.message).toEqual(
         'tidak dapat menambahkan reply comment, request payload tidak lengkap',
       );
@@ -119,24 +126,25 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
         content: true,
       };
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({ server });
+      const userId = 'user-test-4';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_4' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_4', id: userId });
 
       await ThreadTableTestHelper.addThread({
-        id: 'thread-123',
+        id: 'thread-test-4',
         owner: userId,
       });
 
       await CommentTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
+        id: 'comment-test-4',
+        threadId: 'thread-test-4',
         owner: userId,
       });
 
-      //   Action
+      // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads/thread-123/comments/comment-123/replies',
+        url: '/threads/thread-test-4/comments/comment-test-4/replies',
         payload: requestPayload,
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -158,24 +166,25 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
         content: 'content reply comment',
       };
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({ server });
+      const userId = 'user-test-5';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_5' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_5', id: userId });
 
       await ThreadTableTestHelper.addThread({
-        id: 'thread-123',
+        id: 'thread-test-5',
         owner: userId,
       });
 
       await CommentTableTestHelper.addComment({
-        id: 'comment-123',
-        threadId: 'thread-123',
+        id: 'comment-test-5',
+        threadId: 'thread-test-5',
         owner: userId,
       });
 
-      //   Action
+      // Action
       const response = await server.inject({
         method: 'POST',
-        url: '/threads/thread-123/comments/comment-123/replies',
+        url: '/threads/thread-test-5/comments/comment-test-5/replies',
         payload: requestPayload,
         headers: {
           authorization: `Bearer ${accessToken}`,
@@ -198,7 +207,8 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
       // Action
       const response = await server.inject({
         method: 'DELETE',
-        url: '/threads/threadId/comments/commentId/replies/replyId',
+        url: '/threads/thread-123/comments/comment-123/replies/reply-123',
+        payload: {},
       });
 
       // Assert
@@ -211,21 +221,16 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 403 when delete reply is invalid owner', async () => {
       // Arrange
       const payload = {
-        threadId: 'thread-123',
-        commentId: 'comment-123',
-        replyId: 'reply-123',
+        threadId: 'thread-test-7',
+        commentId: 'comment-test-7',
+        replyId: 'reply-test-7',
       };
       const server = await createServer(container);
-      const userIdValidOwner = await ServerTestHelper.registerUser({ server });
-      await ServerTestHelper.registerUser({
-        server,
-        username: 'john',
-      });
-
-      const accessTokenInvalidOwner = await ServerTestHelper.getAccessToken({
-        server,
-        username: 'john',
-      });
+      const userIdValidOwner = 'user-valid-7';
+      const userIdInvalidOwner = 'user-invalid-7';
+      await UsersTableTestHelper.addUser({ id: userIdValidOwner, username: 'user_valid_7' });
+      await UsersTableTestHelper.addUser({ id: userIdInvalidOwner, username: 'user_invalid_7' });
+      const accessTokenInvalidOwner = await jwtTokenManager.createAccessToken({ username: 'user_invalid_7', id: userIdInvalidOwner });
 
       await ThreadTableTestHelper.addThread({
         id: payload.threadId,
@@ -256,7 +261,6 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(403);
       expect(responseJson.status).toEqual('fail');
-      // TODO 130925: Ubah pesan error di file testing agar sesuai dengan implementasi
       expect(responseJson.message).toEqual(
         'Anda tidak berhak mengakses resource ini',
       );
@@ -265,16 +269,15 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
     it('should response 404 when delete thread, comment, or reply not found in database', async () => {
       // Arrange
       const payload = {
-        threadId: 'thread-123',
-        commentId: 'comment-123',
-        replyId: 'reply-123',
+        threadId: 'thread-test-8',
+        commentId: 'comment-test-8',
+        replyId: 'reply-test-8',
       };
 
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({
-        server,
-      });
+      const userId = 'user-test-8';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_8' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_8', id: userId });
 
       await ThreadTableTestHelper.addThread({
         id: payload.threadId,
@@ -299,23 +302,21 @@ describe('/threads/{threadId}/comments/{commentId}/replies', () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(404);
       expect(responseJson.status).toEqual('fail');
-      // TODO 130925: Ubah pesan error di file testing agar sesuai dengan implementasi
       expect(responseJson.message).toEqual('reply tidak ditemukan di database');
     });
 
     it('should response 200 when delete reply correctly', async () => {
       // Arrange
       const payload = {
-        threadId: 'thread-123',
-        commentId: 'comment-123',
-        replyId: 'reply-123',
+        threadId: 'thread-test-9',
+        commentId: 'comment-test-9',
+        replyId: 'reply-test-9',
       };
 
       const server = await createServer(container);
-      const userId = await ServerTestHelper.registerUser({ server });
-      const accessToken = await ServerTestHelper.getAccessToken({
-        server,
-      });
+      const userId = 'user-test-9';
+      await UsersTableTestHelper.addUser({ id: userId, username: 'user_test_9' });
+      const accessToken = await jwtTokenManager.createAccessToken({ username: 'user_test_9', id: userId });
 
       await ThreadTableTestHelper.addThread({
         id: payload.threadId,

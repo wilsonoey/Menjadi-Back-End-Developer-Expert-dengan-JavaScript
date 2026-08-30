@@ -8,6 +8,13 @@ const LikeRepositoryPostgres = require('../LikeRepositoryPostgres');
 describe('LikeRepositoryPostgres', () => {
   jest.setTimeout(30000);
 
+  beforeEach(async () => {
+    await LikesTableTestHelper.cleanTable();
+    await CommentsTableTestHelper.cleanTable();
+    await ThreadsTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await LikesTableTestHelper.cleanTable();
     await CommentsTableTestHelper.cleanTable();
@@ -112,6 +119,45 @@ describe('LikeRepositoryPostgres', () => {
 
       // Assert
       expect(count).toEqual(2);
+    });
+  });
+
+  describe('getLikeCountsByCommentIds function', () => {
+    it('should return empty object if commentIds is empty', async () => {
+      const pool = new SequelizePool();
+      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, () => {});
+      const counts = await likeRepositoryPostgres.getLikeCountsByCommentIds([]);
+      expect(counts).toEqual({});
+    });
+
+    it('should return like counts grouped by commentIds correctly', async () => {
+      await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user1' });
+      await UsersTableTestHelper.addUser({ id: 'user-456', username: 'user2' });
+      await ThreadsTableTestHelper.addThread({ id: 'thread-123', owner: 'user-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-123', owner: 'user-123', threadId: 'thread-123' });
+      await CommentsTableTestHelper.addComment({ id: 'comment-124', owner: 'user-123', threadId: 'thread-123' });
+      await LikesTableTestHelper.addLike({ id: 'like-1', commentId: 'comment-123', owner: 'user-123' });
+      await LikesTableTestHelper.addLike({ id: 'like-2', commentId: 'comment-123', owner: 'user-456' });
+
+      const pool = new SequelizePool();
+      const likeRepositoryPostgres = new LikeRepositoryPostgres(pool, () => {});
+      const counts = await likeRepositoryPostgres.getLikeCountsByCommentIds(['comment-123', 'comment-124', 'comment-125']);
+      expect(counts).toEqual({
+        'comment-123': 2,
+        'comment-124': 0,
+        'comment-125': 0,
+      });
+    });
+  });
+
+  describe('when models are not available', () => {
+    it('should throw error on all methods', async () => {
+      const likeRepositoryPostgres = new LikeRepositoryPostgres({});
+      await expect(likeRepositoryPostgres.addLike('c', 'u')).rejects.toThrow('Sequelize models not available');
+      await expect(likeRepositoryPostgres.deleteLike('c', 'u')).rejects.toThrow('Sequelize models not available');
+      await expect(likeRepositoryPostgres.verifyLikeStatus('c', 'u')).rejects.toThrow('Sequelize models not available');
+      await expect(likeRepositoryPostgres.getLikeCountByCommentId('c')).rejects.toThrow('Sequelize models not available');
+      await expect(likeRepositoryPostgres.getLikeCountsByCommentIds(['c'])).rejects.toThrow('Sequelize models not available');
     });
   });
 });

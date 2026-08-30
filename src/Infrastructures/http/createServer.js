@@ -20,7 +20,7 @@ try {
 
 const threadsLimiter = rateLimit({
   windowMs: 60 * 1000,
-  max: 90,
+  max: process.env.NODE_ENV === 'test' ? 5000 : 90,
   standardHeaders: true,
   legacyHeaders: false,
   validate: { default: false },
@@ -32,10 +32,12 @@ const threadsLimiter = rateLimit({
 
 const createServer = async (container) => {
   const app = express();
+  const router = express.Router();
   app.use(express.json());
 
   // Limit access: 90 requests per minute on /threads and sub-paths
   app.use('/threads', threadsLimiter);
+  app.use(router);
 
   const authStrategies = {};
 
@@ -57,7 +59,7 @@ const createServer = async (container) => {
         const method = route.method.toLowerCase();
         const expressPath = route.path.replace(/\{(\w+)\}/g, ':$1');
 
-        app[method](expressPath, async (req, res) => {
+        router[method](expressPath, async (req, res) => {
           // Authentication check
           if (route.options && route.options.auth === 'forum_api_jwt') {
             const authHeader = req.headers.authorization;
@@ -163,7 +165,7 @@ const createServer = async (container) => {
         }
       }
     },
-    ext: () => {},
+    ext: (event, method, options) => {},
     start: () => new Promise((resolve) => {
       const host = process.env.HOST || 'localhost';
       const port = Number(process.env.PORT) || 5000;
@@ -182,9 +184,9 @@ const createServer = async (container) => {
     inject: async ({
       method = 'GET',
       url = '/',
-      payload,
+      payload = undefined,
       headers = {},
-    }) => {
+    } = {}) => {
       const st = supertestLib || require('supertest');
       const supertestReq = st(app)[method.toLowerCase()](url);
 

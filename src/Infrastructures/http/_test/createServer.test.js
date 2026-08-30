@@ -38,4 +38,37 @@ describe('HTTP server', () => {
     // TODO 110925: Sesuaikan pesan error sesuai kebutuhan
     expect(responseJson.message).toEqual(responseJson.message);
   });
+
+  it('should handle auth strategy registration and headers in response correctly', async () => {
+    const server = await createServer({});
+    server.auth.strategy('test_auth', 'jwt', {});
+    server.ext('onPreResponse', () => {});
+    server.route({
+      method: 'GET',
+      path: '/test-custom-header',
+      handler: (request, h) => {
+        const response = h.response('hello world');
+        response.header('X-Custom-Header', 'custom_value');
+        response.code(200);
+        return response;
+      },
+    });
+
+    const response = await server.inject({
+      method: 'GET',
+      url: '/test-custom-header',
+    });
+
+    expect(response.statusCode).toEqual(200);
+    expect(response.payload).toEqual('hello world');
+    expect(response.headers['x-custom-header']).toEqual('custom_value');
+  });
+
+  it('should start and stop server correctly', async () => {
+    const server = await createServer({});
+    const startedServer = await server.start();
+    expect(startedServer.info.uri).toBeDefined();
+    await server.stop();
+    await server.stop();
+  });
 });

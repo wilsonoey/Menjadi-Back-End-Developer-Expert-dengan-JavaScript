@@ -21,8 +21,6 @@ const AuthenticationsTableTestHelper = {
     await Authentication.destroy({
       where: {},
       truncate: false,
-      // TODO 110925: Gunakan opsi 'cascade' jika diperlukan berdasarkan relasi tabel
-      cascade: true,
     });
   },
 };

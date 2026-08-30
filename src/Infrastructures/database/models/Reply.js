@@ -25,6 +25,7 @@ Reply.init({
   commentId: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    field: 'comment_id',
     references: {
       model: 'comments',
       key: 'id',
@@ -33,6 +34,7 @@ Reply.init({
   threadId: {
     type: DataTypes.STRING(50),
     allowNull: false,
+    field: 'thread_id',
     references: {
       model: 'threads',
       key: 'id',
@@ -47,6 +49,7 @@ Reply.init({
     type: DataTypes.BOOLEAN,
     allowNull: false,
     defaultValue: false,
+    field: 'is_delete',
   },
 }, {
   sequelize,

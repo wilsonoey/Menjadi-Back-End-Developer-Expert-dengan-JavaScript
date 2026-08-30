@@ -13,7 +13,10 @@ const pool = new SequelizePool();
 
 describe('CommentRepositoryPostgres', () => {
   beforeEach(async () => {
-    // TODO 220925: Gunakan user yang sesuai
+    await CommentTableTestHelper.cleanTable();
+    await ThreadTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+
     await UsersTableTestHelper.addUser({ id: 'user-123', username: 'user-123' });
     await ThreadTableTestHelper.addThread({
       id: 'thread-123',
@@ -23,8 +26,8 @@ describe('CommentRepositoryPostgres', () => {
 
   afterEach(async () => {
     await CommentTableTestHelper.cleanTable();
-    await UsersTableTestHelper.cleanTable();
     await ThreadTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
   });
 
   afterAll(async () => {
@@ -206,7 +209,7 @@ describe('CommentRepositoryPostgres', () => {
       const commentRepositoryPostgres = new CommentRepositoryPostgres({});
 
       // Action & Assert
-      await expect(commentRepositoryPostgres.verifyAvailableCommentById('comment-123', 'user-123'))
+      await expect(commentRepositoryPostgres.verifyAvailableCommentById('comment-123'))
         .rejects.toThrow('Sequelize models not available');
     });
 
@@ -415,8 +418,8 @@ describe('CommentRepositoryPostgres', () => {
     it('should return all comment by thread id correctly', async () => {
       // Arrange
       // Use specific dates to ensure consistent ordering
-      const date1 = new Date();
-      const date2 = new Date(); // Later than date1
+      const date1 = new Date().toISOString();
+      const date2 = new Date().toISOString(); // Later than date1
       // UNUSED 180925: Jangan sesuaikan datetime dengan kebutuhan testing
       // TODO 180925: Kembalikan ke semula
       const exampleComment1 = {

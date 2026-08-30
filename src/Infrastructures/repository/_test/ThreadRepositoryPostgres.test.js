@@ -10,6 +10,11 @@ const SequelizePool = require('../../database/SequelizePool');
 const pool = new SequelizePool();
 
 describe('ThreadRepositoryPostgres', () => {
+  beforeEach(async () => {
+    await ThreadTableTestHelper.cleanTable();
+    await UsersTableTestHelper.cleanTable();
+  });
+
   afterEach(async () => {
     await ThreadTableTestHelper.cleanTable();
     await UsersTableTestHelper.cleanTable();

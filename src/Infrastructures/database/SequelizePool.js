@@ -15,14 +15,14 @@ class SequelizePool {
     const isSelect = trimmedText.startsWith('SELECT');
 
     if (isSelect) {
-      const [results] = await this._sequelize.query(text, {
+      const [results = []] = await this._sequelize.query(text, {
         replacements: values,
-        type: this._sequelize.QueryTypes.SELECT,
+        type: 'SELECT',
       });
 
       return {
-        rows: results,
-        rowCount: results.length,
+        rows: results || [],
+        rowCount: results ? results.length : 0,
       };
     }
     // For INSERT, UPDATE, DELETE
@@ -32,15 +32,27 @@ class SequelizePool {
 
     // Handle different types of non-SELECT queries
     if (trimmedText.startsWith('INSERT')) {
+      let rowCount = 1;
+      if (results && results.length) {
+        rowCount = results.length;
+      } else if (metadata && typeof metadata === 'object' && 'rowCount' in metadata) {
+        rowCount = Number(metadata.rowCount);
+      }
       return {
         rows: results || [],
-        rowCount: results ? results.length : (metadata && metadata.rowCount) || 1,
+        rowCount,
       };
     }
     if (trimmedText.startsWith('UPDATE') || trimmedText.startsWith('DELETE')) {
+      let rowCount = 0;
+      if (typeof metadata === 'number') {
+        rowCount = metadata;
+      } else if (metadata && typeof metadata === 'object' && 'rowCount' in metadata) {
+        rowCount = Number(metadata.rowCount);
+      }
       return {
         rows: [],
-        rowCount: metadata || 0,
+        rowCount,
       };
     }
     return {

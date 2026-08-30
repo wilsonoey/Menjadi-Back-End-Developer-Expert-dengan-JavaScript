@@ -29,8 +29,7 @@ const LikesTableTestHelper = {
   async cleanTable() {
     await UserCommentLike.destroy({
       where: {},
-      truncate: true,
-      cascade: true,
+      truncate: false,
     });
   },
 };

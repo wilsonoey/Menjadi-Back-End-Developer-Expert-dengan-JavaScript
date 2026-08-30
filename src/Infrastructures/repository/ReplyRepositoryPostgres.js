@@ -67,7 +67,10 @@ class ReplyRepositoryPostgres extends ReplyRepository {
       where: { id: replyId },
     });
 
-    // UNUSED 210925: Cek apakah reply ada
+    if (!reply) {
+      throw new NotFoundError('REPLY.NOT_FOUND');
+    }
+
     if (reply.owner !== owner) {
       throw new AuthorizationError('REPLY.NOT_AUTHORIZED');
     }

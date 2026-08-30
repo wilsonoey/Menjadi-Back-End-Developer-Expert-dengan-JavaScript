@@ -4,10 +4,10 @@ const { Thread } = require('../src/Infrastructures/database/models');
 const ThreadsTableTestHelper = {
   // TODO 220925: Ubah constructor function addThread
   async addThread({
-    id,
+    id = 'thread-123',
     title = 'Example Title',
     body = 'Example Body',
-    owner,
+    owner = 'user-123',
     date = new Date().toISOString(),
   }) {
     const query = await Thread.create({
@@ -18,7 +18,7 @@ const ThreadsTableTestHelper = {
       date,
     });
 
-    await query;
+    return query;
   },
 
   async findThreadById(id) {
@@ -34,9 +34,7 @@ const ThreadsTableTestHelper = {
   async cleanTable() {
     await Thread.destroy({
       where: {},
-      truncate: true,
-      // TODO 110925: Gunakan opsi 'cascade' jika diperlukan berdasarkan relasi tabel
-      cascade: true,
+      truncate: false,
     });
   },
 };
